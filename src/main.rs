@@ -2,7 +2,17 @@ use std::io::{self, stdout};
 use termion::raw::IntoRawMode;
 use termion::input::TermRead;
 use termion::event::Key;
+/*
+Tui
+Store
+Keyboard
+Terminal
+TaskListScreen
+TaskFormScreen
+Task
 
+Next step is to move everything in `main` to a file called `tui.rs`.
+*/
 fn main() {
     let actions = vec!["Learn Rust", "Learn Go", "Convince Thomas"];
     let number_of_actions = actions.len();
