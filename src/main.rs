@@ -12,6 +12,6 @@ Task
 Next step is to move everything in `main` to a file called `tui.rs`.
 */
 fn main() {
-    let tui = Tui::default();
+    let mut tui = Tui::default();
     tui.run();
 }
