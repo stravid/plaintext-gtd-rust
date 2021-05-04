@@ -1,3 +1,8 @@
+use std::io::{self, stdout};
+use termion::raw::IntoRawMode;
+use termion::input::TermRead;
+use termion::event::Key;
+
 fn main() {
     let actions = vec!["Learn Rust", "Learn Go", "Convince Thomas"];
     let number_of_actions = actions.len();
@@ -10,5 +15,17 @@ fn main() {
 
     for action in actions.iter() {
         println!("{}", action);
+    }
+
+    let _stdout = stdout().into_raw_mode().unwrap();
+
+    for key in io::stdin().keys() {
+        match key {
+            Ok(key) => match key {
+                Key::Esc => break,
+                key => println!("{:?}", key),
+            },
+            Err(error) => panic!(error),
+        }
     }
 }
