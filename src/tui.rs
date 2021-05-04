@@ -6,6 +6,10 @@ use termion::event::Key;
 pub struct Tui {}
 
 impl Tui {
+    pub fn default() -> Self {
+       Self {}
+    }
+
     pub fn run(&self) {
         let actions = vec!["Learn Rust", "Learn Go", "Convince Thomas"];
         let number_of_actions = actions.len();
