@@ -19,8 +19,7 @@ impl<'a > Tui<'a> {
         let mut tasks = vec![String::from("Learn Rust")];
 
         loop {
-            print!("{}{}", termion::clear::All, termion::cursor::Goto(1, 1));
-            io::stdout().flush();
+            self.terminal.clear();
 
             if self.mode == 1 {
                 self.print_list(&tasks);
@@ -61,8 +60,7 @@ impl<'a > Tui<'a> {
         }
 
         print!("{}", termion::cursor::Show);
-        print!("{}{}", termion::clear::All, termion::cursor::Goto(1, 1));
-        io::stdout().flush();
+        self.terminal.clear();
     }
 
     fn print_list(&mut self, tasks: &Vec<String>) {

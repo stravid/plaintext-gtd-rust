@@ -1,6 +1,7 @@
 use termion::event::Key;
 use std::io;
 use termion::input::TermRead;
+use std::io::Write;
 
 pub struct Terminal {}
 
@@ -17,5 +18,10 @@ impl Terminal {
                 Err(error) => panic!("Terminal Error: {}", error),
             },
         }
+    }
+
+    pub fn clear(&self) {
+        print!("{}{}", termion::clear::All, termion::cursor::Goto(1, 1));
+        io::stdout().flush();
     }
 }
