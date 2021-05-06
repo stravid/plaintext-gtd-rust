@@ -1,15 +1,16 @@
 use std::io::{self, stdout, Write};
 use termion::raw::IntoRawMode;
-use termion::input::TermRead;
 use termion::event::Key;
+use crate::terminal;
 
-pub struct Tui {
+pub struct Tui<'a> {
     mode: u8,
+    terminal: &'a terminal::Terminal,
 }
 
-impl Tui {
-    pub fn default() -> Self {
-       Self { mode: 1 }
+impl<'a > Tui<'a> {
+    pub fn default(terminal: &'a terminal::Terminal) -> Self {
+       Self { mode: 1, terminal }
     }
 
     pub fn run(&mut self) {
@@ -29,7 +30,7 @@ impl Tui {
                 self.print_input(&input);
             }
 
-            let key = io::stdin().lock().keys().next().unwrap().unwrap();
+            let key = self.terminal.get_next_key();
 
             if self.mode == 1 {
                 match key {
