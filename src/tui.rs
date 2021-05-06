@@ -59,12 +59,12 @@ impl<'a > Tui<'a> {
             }
         }
 
-        print!("{}", termion::cursor::Show);
+        self.terminal.show_cursor();
         self.terminal.clear();
     }
 
     fn print_list(&mut self, tasks: &Vec<String>) {
-        print!("{}", termion::cursor::Hide);
+        self.terminal.hide_cursor();
         println!("List of tasks\r");
         println!("-------------\r");
         println!("\r");
@@ -83,7 +83,7 @@ impl<'a > Tui<'a> {
     }
 
     fn print_input(&mut self, input: &String) {
-        print!("{}", termion::cursor::Show);
+        self.terminal.show_cursor();
         println!("New task:\r");
         println!("{}\r", input);
         println!("\r");

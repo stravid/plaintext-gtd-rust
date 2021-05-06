@@ -22,6 +22,23 @@ impl Terminal {
 
     pub fn clear(&self) {
         print!("{}{}", termion::clear::All, termion::cursor::Goto(1, 1));
-        io::stdout().flush();
+        self.flush();
+    }
+
+    pub fn show_cursor(&self) {
+        print!("{}", termion::cursor::Show);
+        self.flush();
+    }
+
+    pub fn hide_cursor(&self) {
+        print!("{}", termion::cursor::Hide);
+        self.flush();
+    }
+
+    fn flush(&self) {
+        match io::stdout().flush() {
+            Ok(_) => {}
+            Err(error) => println!("Terminal Error: {}", error),
+        }
     }
 }
