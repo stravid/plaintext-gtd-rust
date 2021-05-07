@@ -3,6 +3,8 @@ use std::io;
 use termion::input::TermRead;
 use std::io::{Write, stdout, Stdout};
 use termion::raw::{IntoRawMode, RawTerminal};
+use termion::color::{White, Blue};
+use termion::color;
 
 pub struct Terminal {
     _stdout: RawTerminal<Stdout>
@@ -10,6 +12,8 @@ pub struct Terminal {
 
 pub enum Print<'a> {
     Text(&'a str),
+    Blue,
+    White,
 }
 
 impl Terminal {
@@ -47,6 +51,8 @@ impl Terminal {
             for instruction in line {
                 match instruction {
                     Print::Text(text) => print!("{}", text),
+                    Print::White => print!("{}", color::Fg(White)),
+                    Print::Blue => print!("{}", color::Fg(Blue)),
                 }
             }
 

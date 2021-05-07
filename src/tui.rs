@@ -73,7 +73,7 @@ impl<'a > Tui<'a> {
         }
 
         for action in tasks.iter() {
-            lines.push(vec![Print::Text(action)]);
+            lines.push(vec![Print::Blue, Print::Text("- "), Print::White, Print::Text(action)]);
         }
 
         lines.push(vec![]);
