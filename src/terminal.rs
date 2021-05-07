@@ -1,9 +1,12 @@
 use termion::event::Key;
 use std::io;
 use termion::input::TermRead;
-use std::io::Write;
+use std::io::{Write, stdout, Stdout};
+use termion::raw::{IntoRawMode, RawTerminal};
 
-pub struct Terminal {}
+pub struct Terminal {
+    _stdout: RawTerminal<Stdout>
+}
 
 pub enum Print<'a> {
     Text(&'a str),
@@ -11,7 +14,7 @@ pub enum Print<'a> {
 
 impl Terminal {
     pub fn default() -> Self {
-        Self {}
+        Self { _stdout: stdout().into_raw_mode().unwrap() }
     }
 
     pub fn get_next_key(&self) -> Key {

@@ -1,5 +1,3 @@
-use std::io::{self, stdout, Write};
-use termion::raw::IntoRawMode;
 use termion::event::Key;
 use crate::terminal;
 use crate::terminal::Print;
@@ -15,7 +13,6 @@ impl<'a > Tui<'a> {
     }
 
     pub fn run(&mut self) {
-        let _stdout = stdout().into_raw_mode().unwrap();
         let mut input = String::from("");
         let mut tasks = vec![String::from("Learn Rust")];
 
