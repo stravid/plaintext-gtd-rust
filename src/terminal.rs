@@ -51,6 +51,11 @@ impl Terminal {
         }
     }
 
+    pub fn move_cursor(&self, column: u16, row: u16) {
+        print!("{}", termion::cursor::Goto(column, row));
+        self.flush();
+    }
+
     fn flush(&self) {
         match io::stdout().flush() {
             Ok(_) => {}

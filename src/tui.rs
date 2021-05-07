@@ -98,8 +98,6 @@ impl<'a > Tui<'a> {
 
         self.terminal.show_cursor();
         self.terminal.print(lines);
-
-        print!("{}", termion::cursor::Goto((input.len() + 1) as u16, 2));
-        io::stdout().flush();
+        self.terminal.move_cursor((input.len() + 1) as u16, 2);
     }
 }
