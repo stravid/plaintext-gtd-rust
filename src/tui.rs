@@ -2,6 +2,7 @@ use std::io::{self, stdout, Write};
 use termion::raw::IntoRawMode;
 use termion::event::Key;
 use crate::terminal;
+use crate::terminal::Print;
 
 pub struct Tui<'a> {
     mode: u8,
@@ -64,31 +65,40 @@ impl<'a > Tui<'a> {
     }
 
     fn print_list(&mut self, tasks: &Vec<String>) {
-        self.terminal.hide_cursor();
-        println!("List of tasks\r");
-        println!("-------------\r");
-        println!("\r");
+        let mut lines = vec![
+            vec![Print::Text("List of tasks")],
+            vec![Print::Text("-------------")],
+            vec![],
+        ];
 
         if tasks.len() == 0 {
-            println!("No tasks\r");
+            lines.push(vec![Print::Text("No tasks")])
         }
 
         for action in tasks.iter() {
-            println!("{}\r", action);
+            lines.push(vec![Print::Text(action)]);
         }
 
-        println!("\r");
-        println!("Press ESC to quit.\r");
-        println!("Press ENTER to enter new task.\r");
+        lines.push(vec![]);
+        lines.push(vec![Print::Text("Press ESC to quit.")]);
+        lines.push(vec![Print::Text("Press ENTER to enter new task.")]);
+
+        self.terminal.hide_cursor();
+        self.terminal.print(lines);
     }
 
     fn print_input(&mut self, input: &String) {
+        let lines = vec![
+            vec![Print::Text("New task:")],
+            vec![Print::Text(input)],
+            vec![],
+            vec![Print::Text("Press ESC to switch to task list.")],
+            vec![Print::Text("Press ENTER to add task.")],
+        ];
+
         self.terminal.show_cursor();
-        println!("New task:\r");
-        println!("{}\r", input);
-        println!("\r");
-        println!("Press ESC to switch to task list.\r");
-        println!("Press ENTER to add task.\r");
+        self.terminal.print(lines);
+
         print!("{}", termion::cursor::Goto((input.len() + 1) as u16, 2));
         io::stdout().flush();
     }

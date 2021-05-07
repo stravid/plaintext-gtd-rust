@@ -5,6 +5,10 @@ use std::io::Write;
 
 pub struct Terminal {}
 
+pub enum Print<'a> {
+    Text(&'a str),
+}
+
 impl Terminal {
     pub fn default() -> Self {
         Self {}
@@ -33,6 +37,18 @@ impl Terminal {
     pub fn hide_cursor(&self) {
         print!("{}", termion::cursor::Hide);
         self.flush();
+    }
+
+    pub fn print(&self, lines: Vec<Vec<Print>>) {
+        for line in lines {
+            for instruction in line {
+                match instruction {
+                    Print::Text(text) => print!("{}", text),
+                }
+            }
+
+            print!("\n\r")
+        }
     }
 
     fn flush(&self) {
