@@ -5,11 +5,12 @@ use crate::terminal::Print;
 pub struct Tui<'a> {
     mode: u8,
     terminal: &'a terminal::Terminal,
+    index: u32,
 }
 
 impl<'a > Tui<'a> {
     pub fn default(terminal: &'a terminal::Terminal) -> Self {
-       Self { mode: 1, terminal }
+       Self { mode: 1, terminal, index: 0 }
     }
 
     pub fn run(&mut self) {
@@ -33,6 +34,8 @@ impl<'a > Tui<'a> {
                 match key {
                     Key::Esc => break,
                     Key::Char('\n') => self.mode = 2,
+                    Key::Up => self.index = if self.index == 0 { 0 } else { self.index - 1 },
+                    Key::Down => self.index = if self.index == (tasks.len() - 1) as u32 { self.index } else { self.index + 1 },
                     _ => (),
                 }
             } else if self.mode == 2 {
@@ -72,8 +75,12 @@ impl<'a > Tui<'a> {
             lines.push(vec![Print::Text("No tasks")])
         }
 
-        for action in tasks.iter() {
-            lines.push(vec![Print::Blue, Print::Text("- "), Print::White, Print::Text(action)]);
+        for (i, action) in tasks.iter().enumerate() {
+            if i == self.index as usize {
+                lines.push(vec![Print::WhiteBackground, Print::Blue, Print::Text("- "), Print::Black, Print::Text(action), Print::ResetBackground, Print::ResetForeground]);
+            } else {
+                lines.push(vec![Print::Blue, Print::Text("- "), Print::White, Print::Text(action)]);
+            }
         }
 
         lines.push(vec![]);

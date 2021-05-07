@@ -3,7 +3,7 @@ use std::io;
 use termion::input::TermRead;
 use std::io::{Write, stdout, Stdout};
 use termion::raw::{IntoRawMode, RawTerminal};
-use termion::color::{White, Blue};
+use termion::color::{White, Blue, Black, Reset};
 use termion::color;
 
 pub struct Terminal {
@@ -14,6 +14,10 @@ pub enum Print<'a> {
     Text(&'a str),
     Blue,
     White,
+    WhiteBackground,
+    Black,
+    ResetBackground,
+    ResetForeground,
 }
 
 impl Terminal {
@@ -53,6 +57,10 @@ impl Terminal {
                     Print::Text(text) => print!("{}", text),
                     Print::White => print!("{}", color::Fg(White)),
                     Print::Blue => print!("{}", color::Fg(Blue)),
+                    Print::Black => print!("{}", color::Fg(Black)),
+                    Print::WhiteBackground => print!("{}", color::Bg(White)),
+                    Print::ResetBackground => print!("{}", color::Bg(Reset)),
+                    Print::ResetForeground => print!("{}", color::Fg(Reset)),
                 }
             }
 
