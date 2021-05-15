@@ -103,9 +103,9 @@ impl<'a> Tui<'a> {
 
             if i == self.index as usize {
                 lines.push(vec![
-                    Print::WhiteBackground,
                     color,
                     sign,
+                    Print::WhiteBackground,
                     Print::Black,
                     Print::Text(&action.text),
                     Print::ResetBackground,
