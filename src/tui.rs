@@ -59,13 +59,12 @@ impl<'a> Tui<'a> {
                     Key::Esc => self.mode = 1,
                     Key::Backspace => {
                         input.pop();
-                        ()
                     }
                     Key::Char(char) => {
                         if char == '\n' {
                             self.mode = 1;
 
-                            if input.trim().len() > 0 {
+                            if !input.trim().is_empty() {
                                 tasks.push(Task::default(input.clone()));
                             }
 
@@ -83,14 +82,14 @@ impl<'a> Tui<'a> {
         self.terminal.clear();
     }
 
-    fn print_list(&mut self, tasks: &Vec<Task>) {
+    fn print_list(&mut self, tasks: &[Task]) {
         let mut lines = vec![
             vec![Print::Text("List of tasks")],
             vec![Print::Text("-------------")],
             vec![],
         ];
 
-        if tasks.len() == 0 {
+        if tasks.is_empty() {
             lines.push(vec![Print::Text("No tasks")])
         }
 
@@ -129,7 +128,7 @@ impl<'a> Tui<'a> {
         self.terminal.print(lines);
     }
 
-    fn print_input(&mut self, input: &String) {
+    fn print_input(&mut self, input: &str) {
         let lines = vec![
             vec![Print::Text("New task:")],
             vec![Print::Text(input)],
@@ -148,7 +147,7 @@ impl<'a> Tui<'a> {
         tasks.insert(
             self.index as usize,
             Task {
-                text: task.text.clone(),
+                text: task.text,
                 state,
             },
         );
