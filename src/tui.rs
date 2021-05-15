@@ -1,6 +1,6 @@
 use termion::event::Key;
 
-use crate::task::Task;
+use crate::task::{State, Task};
 use crate::terminal;
 use crate::terminal::Print;
 
@@ -10,9 +10,13 @@ pub struct Tui<'a> {
     index: u32,
 }
 
-impl<'a > Tui<'a> {
+impl<'a> Tui<'a> {
     pub fn default(terminal: &'a terminal::Terminal) -> Self {
-       Self { mode: 1, terminal, index: 0 }
+        Self {
+            mode: 1,
+            terminal,
+            index: 0,
+        }
     }
 
     pub fn run(&mut self) {
@@ -37,13 +41,26 @@ impl<'a > Tui<'a> {
                     Key::Esc => break,
                     Key::Char('\n') => self.mode = 2,
                     Key::Up => self.index = if self.index == 0 { 0 } else { self.index - 1 },
-                    Key::Down => self.index = if self.index == (tasks.len() - 1) as u32 { self.index } else { self.index + 1 },
+                    Key::Down => {
+                        self.index = if self.index == (tasks.len() - 1) as u32 {
+                            self.index
+                        } else {
+                            self.index + 1
+                        }
+                    }
+                    Key::Char('d') => self.change_task(&mut tasks, State::Done),
+                    Key::Char('i') => self.change_task(&mut tasks, State::InProgress),
+                    Key::Char('t') => self.change_task(&mut tasks, State::Todo),
+                    Key::Char('x') => self.change_task(&mut tasks, State::Discarded),
                     _ => (),
                 }
             } else if self.mode == 2 {
                 match key {
                     Key::Esc => self.mode = 1,
-                    Key::Backspace => { input.pop(); ()},
+                    Key::Backspace => {
+                        input.pop();
+                        ()
+                    }
                     Key::Char(char) => {
                         if char == '\n' {
                             self.mode = 1;
@@ -56,7 +73,7 @@ impl<'a > Tui<'a> {
                         } else {
                             input.push(char);
                         }
-                    },
+                    }
                     _ => (),
                 }
             }
@@ -78,16 +95,35 @@ impl<'a > Tui<'a> {
         }
 
         for (i, action) in tasks.iter().enumerate() {
+            let (color, sign) = match action.state {
+                State::Todo => (Print::Blue, Print::Text("- ")),
+                State::Done => (Print::Green, Print::Text("+ ")),
+                State::InProgress => (Print::Yellow, Print::Text("~ ")),
+                State::Discarded => (Print::Red, Print::Text("+ ")),
+            };
+
             if i == self.index as usize {
-                lines.push(vec![Print::WhiteBackground, Print::Blue, Print::Text("- "), Print::Black, Print::Text(&action.text), Print::ResetBackground, Print::ResetForeground]);
+                lines.push(vec![
+                    Print::WhiteBackground,
+                    color,
+                    sign,
+                    Print::Black,
+                    Print::Text(&action.text),
+                    Print::ResetBackground,
+                    Print::ResetForeground,
+                ]);
             } else {
-                lines.push(vec![Print::Blue, Print::Text("- "), Print::White, Print::Text(&action.text)]);
+                lines.push(vec![color, sign, Print::White, Print::Text(&action.text)]);
             }
         }
 
         lines.push(vec![]);
         lines.push(vec![Print::Text("Press ESC to quit.")]);
         lines.push(vec![Print::Text("Press ENTER to enter new task.")]);
+        lines.push(vec![Print::Text("Press D to mark task as done.")]);
+        lines.push(vec![Print::Text("Press I to mark task as in-progress.")]);
+        lines.push(vec![Print::Text("Press T to mark task as to-do.")]);
+        lines.push(vec![Print::Text("Press X to mark task as discarded.")]);
 
         self.terminal.hide_cursor();
         self.terminal.print(lines);
@@ -105,5 +141,16 @@ impl<'a > Tui<'a> {
         self.terminal.show_cursor();
         self.terminal.print(lines);
         self.terminal.move_cursor((input.len() + 1) as u16, 2);
+    }
+
+    fn change_task(&self, tasks: &mut Vec<Task>, state: State) {
+        let task = tasks.remove(self.index as usize);
+        tasks.insert(
+            self.index as usize,
+            Task {
+                text: task.text.clone(),
+                state,
+            },
+        );
     }
 }

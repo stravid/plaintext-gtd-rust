@@ -1,13 +1,13 @@
-use termion::event::Key;
 use std::io;
-use termion::input::TermRead;
-use std::io::{Write, stdout, Stdout};
-use termion::raw::{IntoRawMode, RawTerminal};
-use termion::color::{White, Blue, Black, Reset};
+use std::io::{stdout, Stdout, Write};
 use termion::color;
+use termion::color::{Black, Blue, Green, Red, Reset, White, Yellow};
+use termion::event::Key;
+use termion::input::TermRead;
+use termion::raw::{IntoRawMode, RawTerminal};
 
 pub struct Terminal {
-    _stdout: RawTerminal<Stdout>
+    _stdout: RawTerminal<Stdout>,
 }
 
 pub enum Print<'a> {
@@ -18,11 +18,16 @@ pub enum Print<'a> {
     Black,
     ResetBackground,
     ResetForeground,
+    Green,
+    Yellow,
+    Red,
 }
 
 impl Terminal {
     pub fn default() -> Self {
-        Self { _stdout: stdout().into_raw_mode().unwrap() }
+        Self {
+            _stdout: stdout().into_raw_mode().unwrap(),
+        }
     }
 
     pub fn get_next_key(&self) -> Key {
@@ -58,6 +63,9 @@ impl Terminal {
                     Print::White => print!("{}", color::Fg(White)),
                     Print::Blue => print!("{}", color::Fg(Blue)),
                     Print::Black => print!("{}", color::Fg(Black)),
+                    Print::Green => print!("{}", color::Fg(Green)),
+                    Print::Yellow => print!("{}", color::Fg(Yellow)),
+                    Print::Red => print!("{}", color::Fg(Red)),
                     Print::WhiteBackground => print!("{}", color::Bg(White)),
                     Print::ResetBackground => print!("{}", color::Bg(Reset)),
                     Print::ResetForeground => print!("{}", color::Fg(Reset)),
