@@ -2,6 +2,7 @@ mod tui;
 use tui::Tui;
 mod terminal;
 use terminal::Terminal;
+mod task;
 /*
 Tui
 Store

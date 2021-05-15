@@ -1,4 +1,6 @@
 use termion::event::Key;
+
+use crate::task::Task;
 use crate::terminal;
 use crate::terminal::Print;
 
@@ -15,7 +17,7 @@ impl<'a > Tui<'a> {
 
     pub fn run(&mut self) {
         let mut input = String::from("");
-        let mut tasks = vec![String::from("Learn Rust")];
+        let mut tasks = vec![Task::default(String::from("Learn Rust"))];
 
         loop {
             self.terminal.clear();
@@ -47,7 +49,7 @@ impl<'a > Tui<'a> {
                             self.mode = 1;
 
                             if input.trim().len() > 0 {
-                                tasks.push(input.clone());
+                                tasks.push(Task::default(input.clone()));
                             }
 
                             input = String::from("");
@@ -64,7 +66,7 @@ impl<'a > Tui<'a> {
         self.terminal.clear();
     }
 
-    fn print_list(&mut self, tasks: &Vec<String>) {
+    fn print_list(&mut self, tasks: &Vec<Task>) {
         let mut lines = vec![
             vec![Print::Text("List of tasks")],
             vec![Print::Text("-------------")],
@@ -77,9 +79,9 @@ impl<'a > Tui<'a> {
 
         for (i, action) in tasks.iter().enumerate() {
             if i == self.index as usize {
-                lines.push(vec![Print::WhiteBackground, Print::Blue, Print::Text("- "), Print::Black, Print::Text(action), Print::ResetBackground, Print::ResetForeground]);
+                lines.push(vec![Print::WhiteBackground, Print::Blue, Print::Text("- "), Print::Black, Print::Text(&action.text), Print::ResetBackground, Print::ResetForeground]);
             } else {
-                lines.push(vec![Print::Blue, Print::Text("- "), Print::White, Print::Text(action)]);
+                lines.push(vec![Print::Blue, Print::Text("- "), Print::White, Print::Text(&action.text)]);
             }
         }
 
