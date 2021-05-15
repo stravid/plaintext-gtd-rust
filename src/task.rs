@@ -12,6 +12,9 @@ pub struct Task {
 
 impl Task {
     pub fn default(text: String) -> Self {
-        Self { text, state: State::Todo }
+        Self {
+            text,
+            state: State::Todo,
+        }
     }
 }

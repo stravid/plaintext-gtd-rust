@@ -34,6 +34,10 @@ impl<'a> Tui<'a> {
                 self.print_input(&input);
             }
 
+            if self.mode == 3 {
+                self.print_edit(&input);
+            }
+
             let key = self.terminal.get_next_key();
 
             if self.mode == 1 {
@@ -52,6 +56,14 @@ impl<'a> Tui<'a> {
                     Key::Char('i') => self.change_task(&mut tasks, State::InProgress),
                     Key::Char('t') => self.change_task(&mut tasks, State::Todo),
                     Key::Char('x') => self.change_task(&mut tasks, State::Discarded),
+                    Key::Char('e') => {
+                        if !tasks.is_empty() {
+                            let task = tasks.remove(self.index as usize);
+                            input = task.text.clone();
+                            tasks.insert(self.index as usize, task);
+                            self.mode = 3;
+                        }
+                    }
                     _ => (),
                 }
             } else if self.mode == 2 {
@@ -75,6 +87,28 @@ impl<'a> Tui<'a> {
                     }
                     _ => (),
                 }
+            } else if self.mode == 3 {
+                match key {
+                    Key::Esc => self.mode = 1,
+                    Key::Backspace => {
+                        input.pop();
+                    }
+                    Key::Char(char) => {
+                        if char == '\n' {
+                            self.mode = 1;
+
+                            if !input.trim().is_empty() {
+                                let task = tasks.remove(self.index as usize);
+                                tasks.insert(self.index as usize, Task { text: input.clone(), state: task.state });
+                            }
+
+                            input = String::from("");
+                        } else {
+                            input.push(char);
+                        }
+                    }
+                    _ => (),
+                }
             }
         }
 
@@ -83,11 +117,7 @@ impl<'a> Tui<'a> {
     }
 
     fn print_list(&mut self, tasks: &[Task]) {
-        let mut lines = vec![
-            vec![Print::Text("List of tasks")],
-            vec![Print::Text("-------------")],
-            vec![],
-        ];
+        let mut lines = vec![];
 
         if tasks.is_empty() {
             lines.push(vec![Print::Text("No tasks")])
@@ -119,10 +149,12 @@ impl<'a> Tui<'a> {
         lines.push(vec![]);
         lines.push(vec![Print::Text("Press ESC to quit.")]);
         lines.push(vec![Print::Text("Press ENTER to enter new task.")]);
+        lines.push(vec![Print::Text("Use UP/DOWN to move task selection.")]);
         lines.push(vec![Print::Text("Press D to mark task as done.")]);
         lines.push(vec![Print::Text("Press I to mark task as in-progress.")]);
         lines.push(vec![Print::Text("Press T to mark task as to-do.")]);
         lines.push(vec![Print::Text("Press X to mark task as discarded.")]);
+        lines.push(vec![Print::Text("Press E to edit task.")]);
 
         self.terminal.hide_cursor();
         self.terminal.print(lines);
@@ -135,6 +167,20 @@ impl<'a> Tui<'a> {
             vec![],
             vec![Print::Text("Press ESC to switch to task list.")],
             vec![Print::Text("Press ENTER to add task.")],
+        ];
+
+        self.terminal.show_cursor();
+        self.terminal.print(lines);
+        self.terminal.move_cursor((input.len() + 1) as u16, 2);
+    }
+
+    fn print_edit(&mut self, input: &str) {
+        let lines = vec![
+            vec![Print::Text("Edit task:")],
+            vec![Print::Text(input)],
+            vec![],
+            vec![Print::Text("Press ESC to switch to task list.")],
+            vec![Print::Text("Press ENTER to update task.")],
         ];
 
         self.terminal.show_cursor();
