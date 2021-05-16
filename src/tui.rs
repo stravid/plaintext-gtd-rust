@@ -1,29 +1,32 @@
 use termion::event::Key;
 
+use crate::store::Store;
 use crate::task::{State, Task};
-use crate::terminal;
 use crate::terminal::Print;
+use crate::{store, terminal};
 
 pub struct Tui<'a> {
     mode: u8,
     terminal: &'a terminal::Terminal,
     index: u32,
+    store: &'a mut store::Store,
 }
 
 impl<'a> Tui<'a> {
-    pub fn default(terminal: &'a terminal::Terminal) -> Self {
+    pub fn default(terminal: &'a terminal::Terminal, store: &'a mut Store) -> Self {
         Self {
             mode: 1,
             terminal,
             index: 0,
+            store,
         }
     }
 
     pub fn run(&mut self) {
         let mut input = String::from("");
-        let mut tasks = vec![Task::default(String::from("Learn Rust"))];
 
         loop {
+            let mut tasks = self.store.query_tasks();
             self.terminal.clear();
 
             if self.mode == 1 {
@@ -58,9 +61,8 @@ impl<'a> Tui<'a> {
                     Key::Char('x') => self.change_task(&mut tasks, State::Discarded),
                     Key::Char('e') => {
                         if !tasks.is_empty() {
-                            let task = tasks.remove(self.index as usize);
+                            let task = tasks.get(self.index as usize).unwrap();
                             input = task.text.clone();
-                            tasks.insert(self.index as usize, task);
                             self.mode = 3;
                         }
                     }
@@ -77,7 +79,7 @@ impl<'a> Tui<'a> {
                             self.mode = 1;
 
                             if !input.trim().is_empty() {
-                                tasks.push(Task::default(input.clone()));
+                                self.store.persist_task(Task::default(input.clone()));
                             }
 
                             input = String::from("");
@@ -98,8 +100,11 @@ impl<'a> Tui<'a> {
                             self.mode = 1;
 
                             if !input.trim().is_empty() {
-                                let task = tasks.remove(self.index as usize);
-                                tasks.insert(self.index as usize, Task { text: input.clone(), state: task.state });
+                                let task = tasks.get(self.index as usize).unwrap();
+                                self.store.persist_task(Task {
+                                    text: input.clone(),
+                                    ..task.clone()
+                                });
                             }
 
                             input = String::from("");
@@ -188,14 +193,11 @@ impl<'a> Tui<'a> {
         self.terminal.move_cursor((input.len() + 1) as u16, 2);
     }
 
-    fn change_task(&self, tasks: &mut Vec<Task>, state: State) {
-        let task = tasks.remove(self.index as usize);
-        tasks.insert(
-            self.index as usize,
-            Task {
-                text: task.text,
-                state,
-            },
-        );
+    fn change_task(&mut self, tasks: &mut Vec<Task>, state: State) {
+        let task = tasks.get(self.index as usize).unwrap();
+        self.store.persist_task(Task {
+            state,
+            ..task.clone()
+        });
     }
 }
