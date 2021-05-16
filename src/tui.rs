@@ -26,7 +26,7 @@ impl<'a> Tui<'a> {
         let mut input = String::from("");
 
         loop {
-            let mut tasks = self.store.query_tasks();
+            let tasks = self.store.query_tasks();
             self.terminal.clear();
 
             if self.mode == 1 {
@@ -55,10 +55,10 @@ impl<'a> Tui<'a> {
                             self.index + 1
                         }
                     }
-                    Key::Char('d') => self.change_task(&mut tasks, State::Done),
-                    Key::Char('i') => self.change_task(&mut tasks, State::InProgress),
-                    Key::Char('t') => self.change_task(&mut tasks, State::Todo),
-                    Key::Char('x') => self.change_task(&mut tasks, State::Discarded),
+                    Key::Char('d') => self.change_task(&tasks, State::Done),
+                    Key::Char('i') => self.change_task(&tasks, State::InProgress),
+                    Key::Char('t') => self.change_task(&tasks, State::Todo),
+                    Key::Char('x') => self.change_task(&tasks, State::Discarded),
                     Key::Char('e') => {
                         if !tasks.is_empty() {
                             let task = tasks.get(self.index as usize).unwrap();
@@ -193,7 +193,7 @@ impl<'a> Tui<'a> {
         self.terminal.move_cursor((input.len() + 1) as u16, 2);
     }
 
-    fn change_task(&mut self, tasks: &mut Vec<Task>, state: State) {
+    fn change_task(&mut self, tasks: &Vec<Task>, state: State) {
         let task = tasks.get(self.index as usize).unwrap();
         self.store.persist_task(Task {
             state,
