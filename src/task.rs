@@ -29,16 +29,12 @@ impl sqlite::Readable for State {
     fn read(statement: &sqlite::Statement, i: usize) -> sqlite::Result<State> {
         let result = statement.read::<String>(i).unwrap();
 
-        if result == "todo" {
-            sqlite::Result::Ok(State::Todo)
-        } else if result == "done" {
-            sqlite::Result::Ok(State::Done)
-        } else if result == "inprogress" {
-            sqlite::Result::Ok(State::InProgress)
-        } else if result == "discarded" {
-            sqlite::Result::Ok(State::Discarded)
-        } else {
-            sqlite::Result::Err(sqlite::Error {
+        match result.as_str() {
+            "todo" => sqlite::Result::Ok(State::Todo),
+            "done" => sqlite::Result::Ok(State::Done),
+            "inprogress" => sqlite::Result::Ok(State::InProgress),
+            "discarded" => sqlite::Result::Ok(State::Discarded),
+            _ => sqlite::Result::Err(sqlite::Error {
                 code: Option::None,
                 message: Option::Some(format!("Unknown task state {}", result)),
             })
