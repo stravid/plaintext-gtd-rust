@@ -2,7 +2,6 @@ use crate::task::Task;
 use sqlite::State;
 use crate::task;
 use crate::uuid::Uuid;
-use std::time::SystemTime;
 
 pub struct Store {
     connection: sqlite::Connection,
@@ -20,22 +19,14 @@ impl Store {
     pub fn query_tasks(&self) -> Vec<Task> {
         let mut tasks: Vec<Task> = vec![];
         let mut statement = self.connection.prepare(r"
-            WITH ordered_tasks AS (
-                SELECT
-                    *
-                FROM
-                    tasks
-                ORDER BY
-                    version DESC
-            )
             SELECT
                 uuid,
                 text,
                 state
             FROM
-                ordered_tasks
-            GROUP BY
-                uuid
+                tasks
+            ORDER BY
+                rowid ASC
             ;
         ").unwrap();
 
@@ -56,24 +47,24 @@ impl Store {
                 tasks (
                     uuid,
                     text,
-                    state,
-                    version
+                    state
                 )
             VALUES (
                 ?,
                 ?,
-                ?,
                 ?
             )
+            ON CONFLICT(uuid) DO UPDATE SET text = ?, state = ?;
             ;
         ").unwrap();
 
-        statement.bind(1, task.uuid);
-        statement.bind(2, &task.text[..]);
-        statement.bind(3, task.state);
-        statement.bind(4, SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as i64);
+        statement.bind(1, task.uuid).unwrap();
+        statement.bind(2, &task.text[..]).unwrap();
+        statement.bind(3, task.state.clone()).unwrap();
+        statement.bind(4, &task.text[..]).unwrap();
+        statement.bind(5, task.state).unwrap();
 
-        statement.next();
+        statement.next().unwrap();
     }
 
     fn migrate(connection: &sqlite::Connection) {
@@ -87,8 +78,7 @@ impl Store {
                     uuid TEXT NOT NULL,
                     text TEXT NOT NULL CHECK (LENGTH(text) > 0),
                     state TEXT NOT NULL CHECK (state IN ('todo', 'inprogress', 'done', 'discarded')),
-                    version INTEGER NOT NULL,
-                    PRIMARY KEY (uuid, version)
+                    PRIMARY KEY (uuid)
                 );
 
                 PRAGMA user_version = 1;

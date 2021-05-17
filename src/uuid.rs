@@ -27,7 +27,7 @@ impl sqlite::Readable for Uuid {
 
 impl sqlite::Bindable for Uuid {
     fn bind(self, statement: &mut Statement, i: usize) -> sqlite::Result<()> {
-        statement.bind(i, &self.value.to_hyphenated().to_string()[..]);
+        statement.bind(i, &self.value.to_hyphenated().to_string()[..]).unwrap();
         Ok(())
     }
 }

@@ -193,7 +193,7 @@ impl<'a> Tui<'a> {
         self.terminal.move_cursor((input.len() + 1) as u16, 2);
     }
 
-    fn change_task(&mut self, tasks: &Vec<Task>, state: State) {
+    fn change_task(&mut self, tasks: &[Task], state: State) {
         let task = tasks.get(self.index as usize).unwrap();
         self.store.persist_task(Task {
             state,

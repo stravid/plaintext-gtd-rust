@@ -30,13 +30,13 @@ impl sqlite::Readable for State {
     fn read(statement: &Statement, i: usize) -> sqlite::Result<State> {
         let result = statement.read::<String>(i).unwrap();
 
-        return if result == String::from("todo") {
+        if result == "todo" {
             sqlite::Result::Ok(State::Todo)
-        } else if result == String::from("done") {
+        } else if result == "done" {
             sqlite::Result::Ok(State::Done)
-        } else if result == String::from("inprogress") {
+        } else if result == "inprogress" {
             sqlite::Result::Ok(State::InProgress)
-        } else if result == String::from("discarded") {
+        } else if result == "discarded" {
             sqlite::Result::Ok(State::Discarded)
         } else {
             sqlite::Result::Err(sqlite::Error {
@@ -56,7 +56,7 @@ impl sqlite::Bindable for State {
             State::Discarded => String::from("discarded"),
         };
 
-        statement.bind(i, &string[..]);
+        statement.bind(i, &string[..]).unwrap();
         Ok(())
     }
 }
