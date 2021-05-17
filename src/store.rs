@@ -1,6 +1,5 @@
 use crate::task::Task;
-use sqlite::State;
-use crate::task;
+use crate::task::State;
 use crate::uuid::Uuid;
 
 pub struct Store {
@@ -30,10 +29,10 @@ impl Store {
             ;
         ").unwrap();
 
-        while let State::Row =statement.next().unwrap() {
+        while let sqlite::State::Row =statement.next().unwrap() {
             let uuid = statement.read::<Uuid>(0).unwrap();
             let text = statement.read::<String>(1).unwrap();
-            let state = statement.read::<task::State>(2).unwrap();
+            let state = statement.read::<State>(2).unwrap();
 
             tasks.push(Task { uuid, text, state });
         }

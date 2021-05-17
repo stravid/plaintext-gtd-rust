@@ -1,5 +1,3 @@
-use sqlite::Statement;
-
 #[derive(Clone)]
 pub struct Uuid {
     value: uuid::Uuid,
@@ -18,7 +16,7 @@ impl std::cmp::PartialEq for Uuid {
 }
 
 impl sqlite::Readable for Uuid {
-    fn read(statement: &Statement, i: usize) -> sqlite::Result<Uuid> {
+    fn read(statement: &sqlite::Statement, i: usize) -> sqlite::Result<Uuid> {
         let result = statement.read::<String>(i).unwrap();
 
         sqlite::Result::Ok(Uuid { value: uuid::Uuid::parse_str(&*result).unwrap() })
@@ -26,7 +24,7 @@ impl sqlite::Readable for Uuid {
 }
 
 impl sqlite::Bindable for Uuid {
-    fn bind(self, statement: &mut Statement, i: usize) -> sqlite::Result<()> {
+    fn bind(self, statement: &mut sqlite::Statement, i: usize) -> sqlite::Result<()> {
         statement.bind(i, &self.value.to_hyphenated().to_string()[..]).unwrap();
         Ok(())
     }

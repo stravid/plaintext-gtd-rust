@@ -1,4 +1,3 @@
-use sqlite::Statement;
 use crate::uuid::Uuid;
 
 #[derive(Clone)]
@@ -27,7 +26,7 @@ impl Task {
 }
 
 impl sqlite::Readable for State {
-    fn read(statement: &Statement, i: usize) -> sqlite::Result<State> {
+    fn read(statement: &sqlite::Statement, i: usize) -> sqlite::Result<State> {
         let result = statement.read::<String>(i).unwrap();
 
         if result == "todo" {
@@ -48,7 +47,7 @@ impl sqlite::Readable for State {
 }
 
 impl sqlite::Bindable for State {
-    fn bind(self, statement: &mut Statement, i: usize) -> sqlite::Result<()> {
+    fn bind(self, statement: &mut sqlite::Statement, i: usize) -> sqlite::Result<()> {
         let string = match self {
             State::Todo => String::from("todo"),
             State::Done => String::from("done"),
