@@ -1,5 +1,4 @@
 use termion::event::Key;
-
 use crate::store::Store;
 use crate::task::{State, Task};
 use crate::terminal::Print;
