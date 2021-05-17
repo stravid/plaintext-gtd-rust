@@ -1,8 +1,9 @@
 use termion::event::Key;
 use crate::store::Store;
 use crate::task::{State, Task};
-use crate::terminal::Print;
 use crate::{store, terminal};
+use terminal::print::{Color};
+use crate::terminal::print::Instruction::{Text, Foreground, Background};
 
 pub struct Tui<'a> {
     mode: u8,
@@ -124,41 +125,41 @@ impl<'a> Tui<'a> {
         let mut lines = vec![];
 
         if tasks.is_empty() {
-            lines.push(vec![Print::Text("No tasks")])
+            lines.push(vec![Text("No tasks")])
         }
 
         for (i, action) in tasks.iter().enumerate() {
             let (color, sign) = match action.state {
-                State::Todo => (Print::Blue, Print::Text("- ")),
-                State::Done => (Print::Green, Print::Text("+ ")),
-                State::InProgress => (Print::Yellow, Print::Text("~ ")),
-                State::Discarded => (Print::Red, Print::Text("+ ")),
+                State::Todo => (Foreground(Color::Blue), Text("- ")),
+                State::Done => (Foreground(Color::Green), Text("+ ")),
+                State::InProgress => (Foreground(Color::Yellow), Text("~ ")),
+                State::Discarded => (Foreground(Color::Red), Text("+ ")),
             };
 
             if i == self.index as usize {
                 lines.push(vec![
                     color,
                     sign,
-                    Print::WhiteBackground,
-                    Print::Black,
-                    Print::Text(&action.text),
-                    Print::ResetBackground,
-                    Print::ResetForeground,
+                    Background(Color::White),
+                    Foreground(Color::Black),
+                    Text(&action.text),
+                    Background(Color::Reset),
+                    Foreground(Color::Reset),
                 ]);
             } else {
-                lines.push(vec![color, sign, Print::White, Print::Text(&action.text)]);
+                lines.push(vec![color, sign, Foreground(Color::White), Text(&action.text)]);
             }
         }
 
         lines.push(vec![]);
-        lines.push(vec![Print::Text("Press ESC to quit.")]);
-        lines.push(vec![Print::Text("Press ENTER to enter new task.")]);
-        lines.push(vec![Print::Text("Use UP/DOWN to move task selection.")]);
-        lines.push(vec![Print::Text("Press D to mark task as done.")]);
-        lines.push(vec![Print::Text("Press I to mark task as in-progress.")]);
-        lines.push(vec![Print::Text("Press T to mark task as to-do.")]);
-        lines.push(vec![Print::Text("Press X to mark task as discarded.")]);
-        lines.push(vec![Print::Text("Press E to edit task.")]);
+        lines.push(vec![Text("Press ESC to quit.")]);
+        lines.push(vec![Text("Press ENTER to enter new task.")]);
+        lines.push(vec![Text("Use UP/DOWN to move task selection.")]);
+        lines.push(vec![Text("Press D to mark task as done.")]);
+        lines.push(vec![Text("Press I to mark task as in-progress.")]);
+        lines.push(vec![Text("Press T to mark task as to-do.")]);
+        lines.push(vec![Text("Press X to mark task as discarded.")]);
+        lines.push(vec![Text("Press E to edit task.")]);
 
         self.terminal.hide_cursor();
         self.terminal.print(lines);
@@ -166,11 +167,11 @@ impl<'a> Tui<'a> {
 
     fn print_input(&mut self, input: &str) {
         let lines = vec![
-            vec![Print::Text("New task:")],
-            vec![Print::Text(input)],
+            vec![Text("New task:")],
+            vec![Text(input)],
             vec![],
-            vec![Print::Text("Press ESC to switch to task list.")],
-            vec![Print::Text("Press ENTER to add task.")],
+            vec![Text("Press ESC to switch to task list.")],
+            vec![Text("Press ENTER to add task.")],
         ];
 
         self.terminal.show_cursor();
@@ -180,11 +181,11 @@ impl<'a> Tui<'a> {
 
     fn print_edit(&mut self, input: &str) {
         let lines = vec![
-            vec![Print::Text("Edit task:")],
-            vec![Print::Text(input)],
+            vec![Text("Edit task:")],
+            vec![Text(input)],
             vec![],
-            vec![Print::Text("Press ESC to switch to task list.")],
-            vec![Print::Text("Press ENTER to update task.")],
+            vec![Text("Press ESC to switch to task list.")],
+            vec![Text("Press ENTER to update task.")],
         ];
 
         self.terminal.show_cursor();
