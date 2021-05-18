@@ -1,21 +1,27 @@
-use termion::event::Key;
 use crate::store::Store;
 use crate::task::{State, Task};
+use crate::terminal::print::Instruction::{Background, Foreground, Text};
 use crate::{store, terminal};
-use terminal::print::{Color};
-use crate::terminal::print::Instruction::{Text, Foreground, Background};
+use terminal::print::Color;
+use termion::event::Key;
 
 pub struct Tui<'a> {
-    mode: u8,
+    mode: Mode,
     terminal: &'a terminal::Terminal,
     index: u32,
     store: &'a mut store::Store,
 }
 
+enum Mode {
+    List,
+    New,
+    Edit,
+}
+
 impl<'a> Tui<'a> {
     pub fn default(terminal: &'a terminal::Terminal, store: &'a mut Store) -> Self {
         Self {
-            mode: 1,
+            mode: Mode::List,
             terminal,
             index: 0,
             store,
@@ -29,24 +35,18 @@ impl<'a> Tui<'a> {
             let tasks = self.store.query_tasks();
             self.terminal.clear();
 
-            if self.mode == 1 {
-                self.print_list(&tasks);
-            }
-
-            if self.mode == 2 {
-                self.print_input(&input);
-            }
-
-            if self.mode == 3 {
-                self.print_edit(&input);
+            match self.mode {
+                Mode::List => self.print_list(&tasks),
+                Mode::New => self.print_input(&input),
+                Mode::Edit => self.print_edit(&input),
             }
 
             let key = self.terminal.get_next_key();
 
-            if self.mode == 1 {
-                match key {
+            match self.mode {
+                Mode::List => match key {
                     Key::Esc => break,
-                    Key::Char('\n') => self.mode = 2,
+                    Key::Char('\n') => self.mode = Mode::New,
                     Key::Up => self.index = if self.index == 0 { 0 } else { self.index - 1 },
                     Key::Down => {
                         self.index = if self.index == (tasks.len() - 1) as u32 {
@@ -63,20 +63,19 @@ impl<'a> Tui<'a> {
                         if !tasks.is_empty() {
                             let task = tasks.get(self.index as usize).unwrap();
                             input = task.text.clone();
-                            self.mode = 3;
+                            self.mode = Mode::Edit;
                         }
                     }
                     _ => (),
-                }
-            } else if self.mode == 2 {
-                match key {
-                    Key::Esc => self.mode = 1,
+                },
+                Mode::New => match key {
+                    Key::Esc => self.mode = Mode::List,
                     Key::Backspace => {
                         input.pop();
                     }
                     Key::Char(char) => {
                         if char == '\n' {
-                            self.mode = 1;
+                            self.mode = Mode::List;
 
                             if !input.trim().is_empty() {
                                 self.store.persist_task(Task::default(input.clone()));
@@ -88,16 +87,15 @@ impl<'a> Tui<'a> {
                         }
                     }
                     _ => (),
-                }
-            } else if self.mode == 3 {
-                match key {
-                    Key::Esc => self.mode = 1,
+                },
+                Mode::Edit => match key {
+                    Key::Esc => self.mode = Mode::List,
                     Key::Backspace => {
                         input.pop();
                     }
                     Key::Char(char) => {
                         if char == '\n' {
-                            self.mode = 1;
+                            self.mode = Mode::List;
 
                             if !input.trim().is_empty() {
                                 let task = tasks.get(self.index as usize).unwrap();
@@ -113,7 +111,7 @@ impl<'a> Tui<'a> {
                         }
                     }
                     _ => (),
-                }
+                },
             }
         }
 
@@ -147,7 +145,12 @@ impl<'a> Tui<'a> {
                     Foreground(Color::Reset),
                 ]);
             } else {
-                lines.push(vec![color, sign, Foreground(Color::White), Text(&action.text)]);
+                lines.push(vec![
+                    color,
+                    sign,
+                    Foreground(Color::White),
+                    Text(&action.text),
+                ]);
             }
         }
 
