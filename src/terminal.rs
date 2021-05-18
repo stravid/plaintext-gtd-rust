@@ -1,9 +1,9 @@
+use crate::terminal::print::{Color, Instruction};
 use std::io;
 use std::io::{stdout, Stdout, Write};
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::{IntoRawMode, RawTerminal};
-use crate::terminal::print::{Instruction, Color};
 
 pub struct Terminal {
     _stdout: RawTerminal<Stdout>,
@@ -64,20 +64,48 @@ impl Terminal {
             for instruction in line {
                 match instruction {
                     Instruction::Text(text) => print!("{}", text),
-                    Instruction::Foreground(Color::Blue) => print!("{}", termion::color::Fg(termion::color::Blue)),
-                    Instruction::Foreground(Color::White) => print!("{}", termion::color::Fg(termion::color::White)),
-                    Instruction::Foreground(Color::Black) => print!("{}", termion::color::Fg(termion::color::Black)),
-                    Instruction::Foreground(Color::Green) => print!("{}", termion::color::Fg(termion::color::Green)),
-                    Instruction::Foreground(Color::Yellow) => print!("{}", termion::color::Fg(termion::color::Yellow)),
-                    Instruction::Foreground(Color::Red) => print!("{}", termion::color::Fg(termion::color::Red)),
-                    Instruction::Foreground(Color::Reset) => print!("{}", termion::color::Fg(termion::color::Reset)),
-                    Instruction::Background(Color::Blue) => print!("{}", termion::color::Bg(termion::color::Blue)),
-                    Instruction::Background(Color::White) => print!("{}", termion::color::Bg(termion::color::White)),
-                    Instruction::Background(Color::Black) => print!("{}", termion::color::Bg(termion::color::Black)),
-                    Instruction::Background(Color::Green) => print!("{}", termion::color::Bg(termion::color::Green)),
-                    Instruction::Background(Color::Yellow) => print!("{}", termion::color::Bg(termion::color::Yellow)),
-                    Instruction::Background(Color::Red) => print!("{}", termion::color::Bg(termion::color::Red)),
-                    Instruction::Background(Color::Reset) => print!("{}", termion::color::Bg(termion::color::Reset)),
+                    Instruction::Foreground(Color::Blue) => {
+                        print!("{}", termion::color::Fg(termion::color::Blue))
+                    }
+                    Instruction::Foreground(Color::White) => {
+                        print!("{}", termion::color::Fg(termion::color::White))
+                    }
+                    Instruction::Foreground(Color::Black) => {
+                        print!("{}", termion::color::Fg(termion::color::Black))
+                    }
+                    Instruction::Foreground(Color::Green) => {
+                        print!("{}", termion::color::Fg(termion::color::Green))
+                    }
+                    Instruction::Foreground(Color::Yellow) => {
+                        print!("{}", termion::color::Fg(termion::color::Yellow))
+                    }
+                    Instruction::Foreground(Color::Red) => {
+                        print!("{}", termion::color::Fg(termion::color::Red))
+                    }
+                    Instruction::Foreground(Color::Reset) => {
+                        print!("{}", termion::color::Fg(termion::color::Reset))
+                    }
+                    Instruction::Background(Color::Blue) => {
+                        print!("{}", termion::color::Bg(termion::color::Blue))
+                    }
+                    Instruction::Background(Color::White) => {
+                        print!("{}", termion::color::Bg(termion::color::White))
+                    }
+                    Instruction::Background(Color::Black) => {
+                        print!("{}", termion::color::Bg(termion::color::Black))
+                    }
+                    Instruction::Background(Color::Green) => {
+                        print!("{}", termion::color::Bg(termion::color::Green))
+                    }
+                    Instruction::Background(Color::Yellow) => {
+                        print!("{}", termion::color::Bg(termion::color::Yellow))
+                    }
+                    Instruction::Background(Color::Red) => {
+                        print!("{}", termion::color::Bg(termion::color::Red))
+                    }
+                    Instruction::Background(Color::Reset) => {
+                        print!("{}", termion::color::Bg(termion::color::Reset))
+                    }
                 }
             }
 

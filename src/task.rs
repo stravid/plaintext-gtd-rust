@@ -37,7 +37,7 @@ impl sqlite::Readable for State {
             _ => sqlite::Result::Err(sqlite::Error {
                 code: Option::None,
                 message: Option::Some(format!("Unknown task state {}", result)),
-            })
+            }),
         }
     }
 }

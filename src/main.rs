@@ -1,7 +1,7 @@
-mod tui;
-mod terminal;
 mod store;
 mod task;
+mod terminal;
+mod tui;
 mod uuid;
 
 fn main() {
@@ -9,7 +9,11 @@ fn main() {
     let sqlite_flags = sqlite::OpenFlags::new().set_create().set_read_write();
     let connection = match sqlite::Connection::open_with_flags(path_to_database, sqlite_flags) {
         Ok(connection) => connection,
-        Err(error) => panic!("Problem opening SQLite database `{}`: {}", path_to_database.display(), error),
+        Err(error) => panic!(
+            "Problem opening SQLite database `{}`: {}",
+            path_to_database.display(),
+            error
+        ),
     };
 
     let terminal = terminal::Terminal::default();

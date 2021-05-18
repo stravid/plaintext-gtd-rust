@@ -1,5 +1,5 @@
-use crate::task::Task;
 use crate::task::State;
+use crate::task::Task;
 use crate::uuid::Uuid;
 
 pub struct Store {
@@ -10,14 +10,15 @@ impl Store {
     pub fn default(connection: sqlite::Connection) -> Self {
         Self::migrate(&connection);
 
-        Self {
-            connection,
-        }
+        Self { connection }
     }
 
     pub fn query_tasks(&self) -> Vec<Task> {
         let mut tasks: Vec<Task> = vec![];
-        let mut statement = self.connection.prepare(r"
+        let mut statement = self
+            .connection
+            .prepare(
+                r"
             SELECT
                 uuid,
                 text,
@@ -27,9 +28,11 @@ impl Store {
             ORDER BY
                 rowid ASC
             ;
-        ").unwrap();
+        ",
+            )
+            .unwrap();
 
-        while let sqlite::State::Row =statement.next().unwrap() {
+        while let sqlite::State::Row = statement.next().unwrap() {
             let uuid = statement.read::<Uuid>(0).unwrap();
             let text = statement.read::<String>(1).unwrap();
             let state = statement.read::<State>(2).unwrap();
@@ -41,7 +44,10 @@ impl Store {
     }
 
     pub fn persist_task(&mut self, task: Task) {
-        let mut statement = self.connection.prepare(r"
+        let mut statement = self
+            .connection
+            .prepare(
+                r"
             INSERT INTO
                 tasks (
                     uuid,
@@ -55,7 +61,9 @@ impl Store {
             )
             ON CONFLICT(uuid) DO UPDATE SET text = ?, state = ?;
             ;
-        ").unwrap();
+        ",
+            )
+            .unwrap();
 
         statement.bind(1, task.uuid).unwrap();
         statement.bind(2, &task.text[..]).unwrap();
